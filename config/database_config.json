@@ -1,0 +1,75 @@
+{
+    "database": {
+        "dbname": "postgres",
+        "user": "postgres",
+        "password": "admin",
+        "host": "127.0.0.1",
+        "port": 5432,
+        "sslmode": "disable"
+    },
+    "tables": {
+        "satellite_data": {
+            "columns": [
+                "id",
+                "timestamp",
+                "ndvi",
+                "ndbi",
+                "ndbai",
+                "thermal_anomaly",
+                "smoke_detected",
+                "image_path",
+                "created_at"
+            ],
+            "indexes": ["timestamp"]
+        },
+        "seismic_data": {
+            "columns": [
+                "id",
+                "timestamp",
+                "magnitude",
+                "depth",
+                "latitude",
+                "longitude",
+                "event_type",
+                "created_at"
+            ],
+            "indexes": ["timestamp"]
+        },
+        "eruptions": {
+            "columns": [
+                "id",
+                "start_time",
+                "end_time",
+                "magnitude",
+                "description",
+                "created_at"
+            ],
+            "indexes": ["start_time"]
+        },
+        "predictions": {
+            "columns": [
+                "id",
+                "timestamp",
+                "probability",
+                "threshold",
+                "is_eruption_predicted",
+                "feature_importance",
+                "temporal_importance",
+                "created_at"
+            ],
+            "indexes": ["timestamp"]
+        }
+    },
+    "backup": {
+        "enabled": true,
+        "schedule": "0 0 * * *",
+        "retention_days": 30,
+        "path": "backups"
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "logs/database.log",
+        "max_size": 10485760,
+        "backup_count": 5
+    }
+} 

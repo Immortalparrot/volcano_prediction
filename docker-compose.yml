@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./logs:/app/logs
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=volcano_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - APP_ENV=development
+      - DEBUG=True
+      - LOG_LEVEL=INFO
+      - MODEL_CHECKPOINT_DIR=/app/checkpoints
+      - MODEL_LOG_DIR=/app/logs
+      - MODEL_RESULTS_DIR=/app/results
+      - DATA_DIR=/app/data
+      - SATELLITE_IMAGES_DIR=/app/data/satellite_images
+      - SEISMIC_DATA_DIR=/app/data/seismic
+    depends_on:
+      - db
+    networks:
+      - volcano_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=volcano_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - volcano_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - volcano_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  volcano_network:
+    driver: bridge 
